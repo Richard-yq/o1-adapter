@@ -1,0 +1,5 @@
+src/config/config.json
+src/gnb-adapter
+src/log.log
+src/testcode
+src/run.sh
