@@ -58,7 +58,7 @@ typedef struct config {
         char *password;
 
         int netconf_port;
-        int ftp_port;
+        int sftp_port;
     } network;
 
     config_ves_t ves;
@@ -82,6 +82,8 @@ typedef struct config {
         char *location_name;
         char *managed_by;
         char *managed_element_type;
+        char *model;
+        char *unit_type;
     } info;
 
 } config_t;

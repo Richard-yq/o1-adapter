@@ -21,7 +21,7 @@
         },
         "heartbeatFields": {
             "heartbeatFieldsVersion": "3.0",
-            "heartbeatInterval": 20,
+            "heartbeatInterval": @heartbeat-interval@,
             "additionalFields": {
                 "eventTime": "@timestampISO3milisec@"
             }

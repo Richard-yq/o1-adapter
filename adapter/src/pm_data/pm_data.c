@@ -50,6 +50,7 @@ static int pm_data_accumulator_len = 0;
 static time_t pm_data_start_time = 0;
 
 static const config_t *pm_data_config = 0;
+static int pm_data_notification_id = 1;
 
 static int pm_data_write(long int start_time, long int end_time, char *filename, int meanActiveUe, int maxActiveUe);
 
@@ -62,6 +63,7 @@ int pm_data_init(const config_t *config) {
     }
 
     pm_data_config = config;
+    pm_data_notification_id = 1;
 
     ves_template_pm_data = file_read_content(config->ves.template.pm_data);
     if(ves_template_pm_data == 0) {
@@ -146,7 +148,7 @@ void pm_data_loop() {
         struct tm now_ptm;
         memcpy(&now_ptm, ptm, sizeof(struct tm));
 
-        asprintf(&filename, "A%04d%02d%02d.%02d%02d+0000-%02d%02d+0000_1_ManagedElement=%s.xml", start_ptm.tm_year + 1900, start_ptm.tm_mon + 1,
+        asprintf(&filename, "A%04d%02d%02d.%02d%02d+0000-%02d%02d+0000_1_%s.xml", start_ptm.tm_year + 1900, start_ptm.tm_mon + 1,
                     start_ptm.tm_mday, start_ptm.tm_hour, start_ptm.tm_min, now_ptm.tm_hour, now_ptm.tm_min, pm_data_config->info.node_id);
         if(filename == 0) {
             log_error("asprintf error");
@@ -176,8 +178,9 @@ void pm_data_loop() {
 
         // send ves message
         ves_file_ready_t file_ready = {
-            .file_location = filename,
+            .file_location = full_path,
             .file_size = get_file_size(full_path),
+            .notification_id = pm_data_notification_id,
         };
 
         rc = ves_fileready_execute(&file_ready);
@@ -185,6 +188,8 @@ void pm_data_loop() {
             log_error("ves_fileready_execute error");
             goto failure_loop;
         }
+
+        pm_data_notification_id++;
 
 failure_loop:
         free(full_path);
@@ -235,7 +240,7 @@ static int pm_data_write(long int start_time, long int end_time, char *filename,
         log_error("gmtime error");
         goto failure;
     }
-    sprintf(start_time_full, "%04d%02d%02dT%02d:%02d:%02d+00:00", ptm->tm_year + 1900, ptm->tm_mon + 1, ptm->tm_mday, ptm->tm_hour, ptm->tm_min, ptm->tm_sec);
+    sprintf(start_time_full, "%04d-%02d-%02dT%02d:%02d:%02d+00:00", ptm->tm_year + 1900, ptm->tm_mon + 1, ptm->tm_mday, ptm->tm_hour, ptm->tm_min, ptm->tm_sec);
     
     timestamp = (time_t *)&end_time;
     ptm = gmtime(timestamp);
@@ -243,7 +248,7 @@ static int pm_data_write(long int start_time, long int end_time, char *filename,
         log_error("gmtime error");
         goto failure;
     }
-    sprintf(end_time_full, "%04d%02d%02dT%02d:%02d:%02d+00:00", ptm->tm_year + 1900, ptm->tm_mon + 1, ptm->tm_mday, ptm->tm_hour, ptm->tm_min, ptm->tm_sec);
+    sprintf(end_time_full, "%04d-%02d-%02dT%02d:%02d:%02d+00:00", ptm->tm_year + 1900, ptm->tm_mon + 1, ptm->tm_mday, ptm->tm_hour, ptm->tm_min, ptm->tm_sec);
     
     const char *suspect = "";
     if(end_time - start_time < PM_DATA_FEED_LOG_PERIOD) {

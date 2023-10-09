@@ -6,17 +6,17 @@
         "username": "netconf",
         "password": "netconf!",
         "netconf-port": 1830,
-        "ftp-port": 1221
+        "sftp-port": 1222
     },
 
     "ves": {
         "template": {
-            "new-alarm": "config/ves-new-alarm.json",
-            "clear-alarm": "config/ves-clear-alarm.json",
-            "pnf-registration": "config/ves-pnf-registration.json",
-            "file-ready": "config/ves-file-ready.json",
-            "heartbeat": "config/ves-heartbeat.json",
-            "pm-data": "config/pmData-measData.xml"
+            "new-alarm": "/adapter/config/ves-new-alarm.json",
+            "clear-alarm": "/adapter/config/ves-clear-alarm.json",
+            "pnf-registration": "/adapter/config/ves-pnf-registration.json",
+            "file-ready": "/adapter/config/ves-file-ready.json",
+            "heartbeat": "/adapter/config/ves-heartbeat.json",
+            "pm-data": "/adapter/config/pmData-measData.xml"
         },
 
         "pnf-registration": true,
@@ -47,6 +47,8 @@
         "node-id": "gNB-Eurecom-5GNRBox-00001",
         "location-name": "MountPoint 05, Rack 234-17, Room 234, 2nd Floor, Körnerstraße 7, 10785 Berlin, Germany, Europe, Earth, Solar-System, Universe",
         "managed-by": "ManagementSystem=O-RAN-SC-ONAP-based-SMO",
-        "managed-element-type": "NodeB"
+        "managed-element-type": "NodeB",
+        "model": "nr-softmodem",
+        "unit-type": "gNB"
     }
 }

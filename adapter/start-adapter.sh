@@ -58,7 +58,7 @@ if $START_DEV; then
 	docker kill adapter-dev
 	docker rm adapter-dev
 
-        docker run -d --name adapter-dev --rm -w /adapter/src -v $(pwd)/src:/adapter/src -v $(pwd)/docker/config:/adapter/config -v $(pwd)/docker/scripts/servertest.py:/adapter/scripts/servertest.py -p 1830:830 -p 1221:21 adapter-dev
+        docker run -d --name adapter-dev --rm -w /adapter/src -v $(pwd)/src:/adapter/src -v $(pwd)/docker/config:/adapter/config -v $(pwd)/docker/scripts/servertest.py:/adapter/scripts/servertest.py -p 1830:830 -p 1222:22 adapter-dev
         if [ ! $? -eq 0 ]; then
             exit 1
         fi

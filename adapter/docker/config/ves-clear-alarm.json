@@ -24,7 +24,7 @@
             "schemaReference": "https://forge.3gpp.org/rep/sa5/MnS/blob/Rel-18/OpenAPI/TS28532_FaultMnS.yaml#components/schemas/NotifyClearedAlarm",
             "data": {
                 "href": "href1",
-                "notificationId": 0,
+                "notificationId": @notification-id@,
                 "notificationType": "notifyClearedAlarm",
                 "eventTime": "@timestampISO3milisec@",
                 "systemDN": "ManagedElement=@node-id@",

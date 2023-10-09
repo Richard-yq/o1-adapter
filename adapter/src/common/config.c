@@ -138,12 +138,12 @@ int config_init(const char *filename) {
     }
     config.network.netconf_port = object->valueint;
 
-    object = cJSON_GetObjectItem(top, "ftp-port");
+    object = cJSON_GetObjectItem(top, "sftp-port");
     if(object == 0) {
-        log_error("config json parser error: ftp-port");
+        log_error("config json parser error: sftp-port");
         goto failure;
     }
-    config.network.ftp_port = object->valueint;
+    config.network.sftp_port = object->valueint;
 
 
 
@@ -456,6 +456,38 @@ int config_init(const char *filename) {
         goto failure;
     }
 
+    object = cJSON_GetObjectItem(top, "model");
+    if(object == 0) {
+        log_error("config json parser error: model");
+        goto failure;
+    }
+    strobject = cJSON_GetStringValue(object);
+    if(strobject == 0) {
+        log_error("config json strobject null");
+        goto failure;
+    }
+    config.info.model = strdup(strobject);
+    if(config.info.model == 0) {
+        log_error("config json strdup error");
+        goto failure;
+    }
+
+    object = cJSON_GetObjectItem(top, "unit-type");
+    if(object == 0) {
+        log_error("config json parser error: unit-type");
+        goto failure;
+    }
+    strobject = cJSON_GetStringValue(object);
+    if(strobject == 0) {
+        log_error("config json strobject null");
+        goto failure;
+    }
+    config.info.unit_type = strdup(strobject);
+    if(config.info.unit_type == 0) {
+        log_error("config json strdup error");
+        goto failure;
+    }
+
     cJSON_Delete(cjson);
     cjson = 0;
     config_ready = 1;
@@ -501,7 +533,7 @@ config_t *config_get() {
         goto failure;
     }
     c->network.netconf_port = config.network.netconf_port;
-    c->network.ftp_port = config.network.ftp_port;
+    c->network.sftp_port = config.network.sftp_port;
 
     c->ves.template.new_alarm = strdup(config.ves.template.new_alarm);
     if(c->ves.template.new_alarm == 0) {
@@ -585,6 +617,16 @@ config_t *config_get() {
         log_error("info.managed_element_type failed");
         goto failure;
     }
+    c->info.model = strdup(config.info.model);
+    if(c->info.model == 0) {
+        log_error("info.model failed");
+        goto failure;
+    }
+    c->info.unit_type = strdup(config.info.unit_type);
+    if(c->info.unit_type == 0) {
+        log_error("info.unit_type failed");
+        goto failure;
+    }
 
     return c;
 
@@ -638,6 +680,10 @@ void config_free(config_t *cconfig) {
     cconfig->info.managed_by = 0;
     free(cconfig->info.managed_element_type);
     cconfig->info.managed_element_type = 0;
+    free(cconfig->info.model);
+    cconfig->info.model = 0;
+    free(cconfig->info.unit_type);
+    cconfig->info.unit_type = 0;
     config_ready = 0;
 
     if(cconfig != &config) {
@@ -657,7 +703,7 @@ void config_print(const config_t *cconfig) {
     log("- network.username: %s", cconfig->network.username);
     log("- network.password: %s", cconfig->network.password);
     log("- network.netconf_port: %d", cconfig->network.netconf_port);
-    log("- network.ftp_port: %d", cconfig->network.ftp_port);
+    log("- network.sftp_port: %d", cconfig->network.sftp_port);
     log("- ves.template.new_alarm: %s", cconfig->ves.template.new_alarm);
     log("- ves.template.clear_alarm: %s", cconfig->ves.template.clear_alarm);
     log("- ves.template.pnf_registration: %s", cconfig->ves.template.pnf_registration);
@@ -681,4 +727,6 @@ void config_print(const config_t *cconfig) {
     log("- info.location_name: %s", cconfig->info.location_name);
     log("- info.managed_by: %s", cconfig->info.managed_by);
     log("- info.managed_element_type: %s", cconfig->info.managed_element_type);
+    log("- info.model: %s", cconfig->info.model);
+    log("- info.unit_type: %s", cconfig->info.unit_type);
 }

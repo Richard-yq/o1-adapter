@@ -62,17 +62,17 @@ int ves_init(const config_t *config) {
         goto failed;
     }
 
-    rc = ves_vsftp_daemon_init();
-    if(rc != 0) {
-        log_error("vsftp_daemon_init() failed");
-        goto failed;
-    }
-
-    // rc = ves_sftp_daemon_init();
+    // rc = ves_vsftp_daemon_init();
     // if(rc != 0) {
-    //     log_error("sftp_daemon_init() failed");
+    //     log_error("vsftp_daemon_init() failed");
     //     goto failed;
     // }
+
+    rc = ves_sftp_daemon_init();
+    if(rc != 0) {
+        log_error("sftp_daemon_init() failed");
+        goto failed;
+    }
 
     ves_template_new_alarm = file_read_content(config->ves.template.new_alarm);
     if(ves_template_new_alarm == 0) {
@@ -141,8 +141,8 @@ failure:
 }
 
 void ves_free() {
-    ves_vsftp_daemon_deinit();
-    // ves_sftp_daemon_deinit();
+    // ves_vsftp_daemon_deinit();
+    ves_sftp_daemon_deinit();
 
     free(ves_common_header.info.managed_element_id);
     ves_common_header.info.managed_element_id = 0;
@@ -173,8 +173,6 @@ void ves_loop() {
         if(ves_config->ves.pnf_registration && !ves_pnf_registration_sent) {
             ves_pnf_registration_data_t data = {
                 .mac_address = "00:00:00:00:00:00", //checkAL
-                .model = "nr-softmodem",    //checkAL
-                .unit_type = "gNB",         //checkAL
                 .ip_v6_address = ""         //checkAL
             };
 
@@ -256,13 +254,13 @@ int ves_pnf_registration_execute(const ves_pnf_registration_data_t *data) {
         goto failed;
     }
 
-    content = str_replace_inplace(content, "@model@", data->model);
+    content = str_replace_inplace(content, "@model@", ves_config->info.model);
     if(content == 0) {
         log_error("str_replace_inplace() failed");
         goto failed;
     }
 
-    content = str_replace_inplace(content, "@unitType@", data->unit_type);
+    content = str_replace_inplace(content, "@unitType@", ves_config->info.unit_type);
     if(content == 0) {
         log_error("str_replace_inplace() failed");
         goto failed;
@@ -316,7 +314,7 @@ int ves_fileready_execute(const ves_file_ready_t *data) {
         goto failed;
     }
 
-    char *domain = "notification";
+    char *domain = "stndDefined";
     char *event_type = "OAI_FileReady";
     char *priority = "Low";
     fileExpiry = get_netconf_timestamp_with_miliseconds(ves_config->ves.file_expiry);
@@ -324,6 +322,12 @@ int ves_fileready_execute(const ves_file_ready_t *data) {
     content = strdup(ves_template_file_ready);
     if(content == 0) {
         log_error("strdup failed");
+        goto failed;
+    }
+
+    content = str_replace_inplace(content, "@model@", ves_config->info.model);
+    if(content == 0) {
+        log_error("str_replace_inplace() failed");
         goto failed;
     }
 
@@ -354,7 +358,7 @@ int ves_fileready_execute(const ves_file_ready_t *data) {
     }
 
     char portstr[8];
-    sprintf(portstr, "%d", ves_config->network.ftp_port);
+    sprintf(portstr, "%d", ves_config->network.sftp_port);
     content = str_replace_inplace(content, "@port@", portstr);
     if(content == 0) {
         log_error("str_replace_inplace() failed");
@@ -368,6 +372,14 @@ int ves_fileready_execute(const ves_file_ready_t *data) {
     }
 
     content = str_replace_inplace(content, "@password@", ves_config->network.password);
+    if(content == 0) {
+        log_error("str_replace_inplace() failed");
+        goto failed;
+    }
+
+    char notification_id[8];
+    sprintf(notification_id, "%d", data->notification_id);
+    content = str_replace_inplace(content, "@notification-id@", notification_id);
     if(content == 0) {
         log_error("str_replace_inplace() failed");
         goto failed;
@@ -439,6 +451,14 @@ int ves_alarm_new_execute(const ves_alarm_t *data) {
         log_error("str_replace_inplace() failed");
         goto failed;
     }
+
+    char notification_id[8];
+    sprintf(notification_id, "%d", data->notification_id);
+    content = str_replace_inplace(content, "@notification-id@", notification_id);
+    if(content == 0) {
+        log_error("str_replace_inplace() failed");
+        goto failed;
+    }
     
     rc = ves_execute(content, domain, event_type, priority);
     if(rc != 0) {
@@ -503,6 +523,14 @@ int ves_alarm_clear_execute(const ves_alarm_t *data) {
         log_error("str_replace_inplace() failed");
         goto failed;
     }
+
+    char notification_id[8];
+    sprintf(notification_id, "%d", data->notification_id);
+    content = str_replace_inplace(content, "@notification-id@", notification_id);
+    if(content == 0) {
+        log_error("str_replace_inplace() failed");
+        goto failed;
+    }
     
     rc = ves_execute(content, domain, event_type, priority);
     if(rc != 0) {
@@ -536,6 +564,14 @@ int ves_heartbeat_execute() {
     content = strdup(ves_template_heartbeat);
     if(content == 0) {
         log_error("strdup failed");
+        goto failed;
+    }
+
+    char heartbeat_interval[8];
+    sprintf(heartbeat_interval, "%d", ves_config->ves.heartbeat_interval);
+    content = str_replace_inplace(content, "@heartbeat-interval@", heartbeat_interval);
+    if(content == 0) {
+        log_error("str_replace_inplace() failed");
         goto failed;
     }
     

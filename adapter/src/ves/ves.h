@@ -33,14 +33,13 @@ typedef struct ves_info {
 
 typedef struct ves_pnf_registration_data {
     char *mac_address;
-    char *model;
-    char *unit_type;
     char *ip_v6_address;        // can be null or empty
 } ves_pnf_registration_data_t;
 
 typedef struct ves_file_ready {
     char *file_location;
     int file_size;
+    int notification_id;
 } ves_file_ready_t;
 
 typedef struct ves_alarm {
@@ -48,6 +47,7 @@ typedef struct ves_alarm {
     char *severity; //@severity@ MINOR
     char *type;     //@alarm-type@ COMMUNICATION_ALARM
     char *object_instance;
+    int notification_id;
 } ves_alarm_t;
 
 int ves_init(const config_t *config);

@@ -53,7 +53,6 @@ static const char **ALARM_XPATH_OPER = 0;
 static const config_t *netconf_config = 0;
 static const alarm_t **netconf_alarms = 0;
 static sr_subscription_ctx_t *netconf_data_subscription = 0;
-static int netconf_alarm_notification_id = 0;
 
 static int netconf_data_register_callbacks();
 static int netconf_data_unregister_callbacks();
@@ -78,8 +77,6 @@ int netconf_data_init(const config_t *config) {
     NPNIDENTITYLIST_XPATH = 0;
     ALARM_XPATH = 0;
     ALARM_XPATH_OPER = 0;
-
-    netconf_alarm_notification_id = 0;
 
     return 0;
 
@@ -1020,7 +1017,7 @@ int netconf_data_update_full(const oai_data_t *oai) {
         const alarm_t **alarm = netconf_alarms;
         int i = 0;
         while(*alarm) {
-            asprintf(&xpath_running[k_running], "%s/attributes/alarmRecords[alarmId='%s']", ALARMLIST_XPATH, (*alarm)->alarm);
+            asprintf(&xpath_running[k_running], "%s/attributes/alarmRecords[alarmId='%s-%s']", ALARMLIST_XPATH, (*alarm)->object_instance, (*alarm)->alarm);
             if(xpath_running[k_running] == 0) {
                 log_error("asprintf failed");
                 goto failure;
@@ -1045,7 +1042,7 @@ int netconf_data_update_full(const oai_data_t *oai) {
                 }
                 k_running++;
 
-            asprintf(&xpath_operational[k_operational], "%s/attributes/alarmRecords[alarmId='%s']", ALARMLIST_XPATH, (*alarm)->alarm);
+            asprintf(&xpath_operational[k_operational], "%s/attributes/alarmRecords[alarmId='%s-%s']", ALARMLIST_XPATH, (*alarm)->object_instance, (*alarm)->alarm);
             if(xpath_operational[k_operational] == 0) {
                 log_error("asprintf failed");
                 goto failure;
@@ -1065,7 +1062,7 @@ int netconf_data_update_full(const oai_data_t *oai) {
                 }
                 k_operational++;
 
-                asprintf(&values_operational[k_operational], "%d", netconf_alarm_notification_id);
+                asprintf(&values_operational[k_operational], "0");
                 if(values_operational[k_operational] == 0) {
                     log_error("asprintf failed");
                     goto failure;
@@ -1103,7 +1100,7 @@ int netconf_data_update_full(const oai_data_t *oai) {
 
                 // alarmChangedTime - not set until data is available
                 k_operational++;
-                 // alarmRaisedTime - not set until data is available
+                // alarmRaisedTime - not set until data is available
                 k_operational++;
                 // alarmClearedTime - not set until data is available
                 k_operational++;
@@ -1150,8 +1147,6 @@ int netconf_data_update_full(const oai_data_t *oai) {
             goto failure;
         }
     }
-
-    netconf_alarm_notification_id++;
 
     rc = netconf_data_register_callbacks();
     if(rc != 0) {
@@ -1985,7 +1980,7 @@ failure:
     return 1;
 }
 
-int netconf_data_update_alarm(const alarm_t *alarm) {
+int netconf_data_update_alarm(const alarm_t *alarm, int notification_id) {
     int rc = 0;
     char *now = get_netconf_timestamp();
     if(now == 0) {
@@ -2064,7 +2059,7 @@ int netconf_data_update_alarm(const alarm_t *alarm) {
         xpath_running[i] = 0;
     }
 
-    asprintf(&xpath_running[k_running], "%s/attributes/alarmRecords[alarmId='%s']", ALARMLIST_XPATH, alarm->alarm);
+    asprintf(&xpath_running[k_running], "%s/attributes/alarmRecords[alarmId='%s-%s']", ALARMLIST_XPATH, alarm->object_instance, alarm->alarm);
     if(xpath_running[k_running] == 0) {
         log_error("asprintf failed");
         goto failure;
@@ -2120,7 +2115,7 @@ int netconf_data_update_alarm(const alarm_t *alarm) {
         xpath_operational[i] = 0;
     }
 
-    asprintf(&xpath_operational[k_operational], "%s/attributes/alarmRecords[alarmId='%s']", ALARMLIST_XPATH, alarm->alarm);
+    asprintf(&xpath_operational[k_operational], "%s/attributes/alarmRecords[alarmId='%s-%s']", ALARMLIST_XPATH, alarm->object_instance, alarm->alarm);
     if(xpath_operational[k_operational] == 0) {
         log_error("asprintf failed");
         goto failure;
@@ -2128,9 +2123,9 @@ int netconf_data_update_alarm(const alarm_t *alarm) {
     ALARM_XPATH_OPER[i] = xpath_operational[k_operational];
     k_operational++;
 
-        asprintf(&values_operational[k_operational], "ManagedElement=%s,AlarmList=1,ALARMID=%s", netconf_config->info.node_id, alarm->alarm);
+        values_operational[k_operational] = strdup(alarm->object_instance);
         if(values_operational[k_operational] == 0) {
-            log_error("asprintf failed");
+            log_error("strdup failed");
             goto failure;
         }
         asprintf(&xpath_operational[k_operational], "%s/objectInstance", ALARM_XPATH_OPER[i]);
@@ -2140,7 +2135,7 @@ int netconf_data_update_alarm(const alarm_t *alarm) {
         }
         k_operational++;
 
-        asprintf(&values_operational[k_operational], "%d", netconf_alarm_notification_id);
+        asprintf(&values_operational[k_operational], "%d", notification_id);
         if(values_operational[k_operational] == 0) {
             log_error("asprintf failed");
             goto failure;
@@ -2190,6 +2185,9 @@ int netconf_data_update_alarm(const alarm_t *alarm) {
         k_operational++;
 
         if(alarm->state == ALARM_STATE_CLEARED) {
+            // alarmRaisedTime - not set until data is available
+            k_operational++;
+
             // alarmClearedTime - not set until data is available
             values_operational[k_operational] = strdup(now);
             if(values_operational[k_operational] == 0) {
@@ -2215,6 +2213,9 @@ int netconf_data_update_alarm(const alarm_t *alarm) {
                 log_error("asprintf failed");
                 goto failure;
             }
+            k_operational++;
+
+            // alarmClearedTime - not set until data is available
             k_operational++;
         }
 
@@ -2256,8 +2257,6 @@ int netconf_data_update_alarm(const alarm_t *alarm) {
         log_error("sr_apply_changes failed");
         goto failure;
     }
-
-    netconf_alarm_notification_id++;
 
     rc = netconf_data_register_callbacks();
     if(rc != 0) {

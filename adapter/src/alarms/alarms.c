@@ -58,6 +58,7 @@ static const alarm_t *alarms[] = {
 };
 
 static const config_t *alarms_config = 0;
+static int alarm_notification_id = 1;
 
 int alarms_init(const config_t *config) {
     int rc;
@@ -68,6 +69,7 @@ int alarms_init(const config_t *config) {
     }
 
     alarms_config = config;
+    alarm_notification_id = 1;
 
     asprintf(&alarm_internal_connection_loss.object_instance, "ManagedElement=%s", alarms_config->info.node_id);
     if(alarm_internal_connection_loss.object_instance == 0) {
@@ -290,6 +292,7 @@ static int alarm_raise(alarm_t *alarm) {
         .severity = (char *)alarm_severity_to_str(alarm->severity),
         .type = (char *)alarm_type_to_str(alarm->type),
         .object_instance = alarm->object_instance,
+        .notification_id = alarm_notification_id,
     };
 
     rc = ves_alarm_new_execute(&ves_alarm);
@@ -297,10 +300,12 @@ static int alarm_raise(alarm_t *alarm) {
         log_error("ves_alarm_new_execute() failed");
     }
 
-    rc = netconf_data_update_alarm(alarm);
+    rc = netconf_data_update_alarm(alarm, alarm_notification_id);
     if(rc != 0) {
         log_error("netconf_data_update_alarm() failed");
     }
+
+    alarm_notification_id++;
 
     return 0;
 }
@@ -315,6 +320,7 @@ static int alarm_clear(alarm_t *alarm) {
         .severity = (char *)alarm_severity_to_str(alarm->severity),
         .type = (char *)alarm_type_to_str(alarm->type),
         .object_instance = alarm->object_instance,
+        .notification_id = alarm_notification_id,
     };
 
     rc = ves_alarm_clear_execute(&ves_alarm);
@@ -322,10 +328,12 @@ static int alarm_clear(alarm_t *alarm) {
         log_error("ves_alarm_clear_execute() failed");
     }
 
-    rc = netconf_data_update_alarm(alarm);
+    rc = netconf_data_update_alarm(alarm, alarm_notification_id);
     if(rc != 0) {
         log_error("netconf_data_update_alarm() failed");
     }
+
+    alarm_notification_id++;
 
     return 0;
 }

@@ -34,4 +34,4 @@ int netconf_data_update_full(const oai_data_t *oai);
 int netconf_data_update_bwp_dl(const oai_data_t *oai);
 int netconf_data_update_bwp_ul(const oai_data_t *oai);
 int netconf_data_update_nrcelldu(const oai_data_t *oai);
-int netconf_data_update_alarm(const alarm_t *alarm);
+int netconf_data_update_alarm(const alarm_t *alarm, int notification_id);
