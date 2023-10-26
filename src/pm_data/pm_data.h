@@ -23,6 +23,8 @@
 
 #pragma once
 
+#include "common/config.h"
+
 typedef struct pm_data {
     int numUes;
     int load;
@@ -32,7 +34,7 @@ typedef struct pm_data_info {
     char *vendor;
 } pm_data_info_t;
 
-int pm_data_init();
+int pm_data_init(const config_t *config);
 int pm_data_set_info(const pm_data_info_t *info);
 int pm_data_free();
 void pm_data_loop();

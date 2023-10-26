@@ -317,6 +317,13 @@ int config_init(const char *filename) {
     }
     config.ves.file_expiry = object->valueint;
 
+    object = cJSON_GetObjectItem(top, "pm-data-interval");
+    if(object == 0) {
+        log_error("config json parser error: pm-data-interval");
+        goto failure;
+    }
+    config.ves.pm_data_interval = object->valueint;
+
     top = cJSON_GetObjectItem(cjson, "alarms");
     if(top == 0) {
         log_error("config json parse error: alarms");
@@ -583,6 +590,7 @@ config_t *config_get() {
         goto failure;
     }
     c->ves.file_expiry = config.ves.file_expiry;
+    c->ves.pm_data_interval = config.ves.pm_data_interval;
 
     c->alarms.internal_connection_lost_timeout = config.alarms.internal_connection_lost_timeout;
     c->alarms.load_downlink_exceeded_warning_threshold = config.alarms.load_downlink_exceeded_warning_threshold;
@@ -716,6 +724,7 @@ void config_print(const config_t *cconfig) {
     log("- ves.username: %s", cconfig->ves.username);
     log("- ves.password: %s", cconfig->ves.password);
     log("- ves.file_expiry: %d", cconfig->ves.file_expiry);
+    log("- ves.pm_data_interval: %d", cconfig->ves.pm_data_interval);
     log("- alarms.internal_connection_lost_timeout: %d", cconfig->alarms.internal_connection_lost_timeout);
     log("- alarms.load_downlink_exceeded_warning_threshold: %d", cconfig->alarms.load_downlink_exceeded_warning_threshold);
     log("- alarms.load_downlink_exceeded_warning_timeout: %d", cconfig->alarms.load_downlink_exceeded_warning_timeout);

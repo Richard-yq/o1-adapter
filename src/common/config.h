@@ -45,6 +45,7 @@ typedef struct config_ves {
     char *password;
 
     int file_expiry;
+    int pm_data_interval;
 } config_ves_t;
 
 typedef struct config {

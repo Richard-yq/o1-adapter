@@ -11,7 +11,7 @@ xsi:schemaLocation="http://www.3gpp.org/ftp/specs/archive/32_series/32.435#measC
 		<managedElement localDn="ManagedElement=@node-id@" userLabel=""/>
 		<measInfo>
 			<job jobId="1"/>
-			<granPeriod duration="PT900S" endTime="@end-time@"/>
+			<granPeriod duration="PT@log-period@S" endTime="@end-time@"/>
 			<repPeriod duration="P1D"/>
 			<measType p="1">DRB.MeanActiveUeDl</measType>
 			<measType p="2">DRB.MaxActiveUeDl</measType>

@@ -26,7 +26,8 @@
         "username": "sample1",
         "password": "sample1",
 
-        "file-expiry": 86400
+        "file-expiry": 86400,
+        "pm-data-interval": 30
     },
 
     "alarms": {

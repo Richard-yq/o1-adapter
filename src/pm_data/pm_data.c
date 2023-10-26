@@ -33,19 +33,20 @@
 #include <stdlib.h>
 #include <time.h>
 
-#define PM_DATA_FEED_PERIOD     (1)
-#define PM_DATA_FEED_LOG_PERIOD (15*60)
-#define PM_DATA_ROTATE          (24*60*60)
 #define PM_DATA_PATH            "/ftp"
 
+// pm data log rotate command; 1440 min = 24 h rotation
 #define PM_DATA_ROLL_COMMAND    "find "PM_DATA_PATH" -mindepth 1 -mmin +1440 -delete"
-#define PM_DATA_ACCUMULATOR_LEN (PM_DATA_FEED_LOG_PERIOD / PM_DATA_FEED_PERIOD)
+
+static int pm_data_feed_period = 1;
+static int pm_data_feed_log_period = 15*60; // default 900 sec
+static int pm_data_accumulator_size = 1;
 
 static char *ves_template_pm_data = 0;
 
 static pm_data_info_t pm_data_info = {0};
 
-static pm_data_t pm_data_accumulator[PM_DATA_ACCUMULATOR_LEN];
+static pm_data_t *pm_data_accumulator = 0;
 static int pm_data_accumulator_len = 0;
 static time_t pm_data_start_time = 0;
 
@@ -55,6 +56,15 @@ static int pm_data_notification_id = 1;
 static int pm_data_write(long int start_time, long int end_time, char *filename, int meanActiveUe, int maxActiveUe);
 
 int pm_data_init(const config_t *config) {
+    pm_data_feed_log_period = config->ves.pm_data_interval;
+    pm_data_accumulator_size = pm_data_feed_log_period / pm_data_feed_period;
+    pm_data_accumulator = (pm_data_t *)malloc(sizeof(pm_data_t) * pm_data_accumulator_size);
+    if(pm_data_accumulator == 0) {
+        log_error("malloc failed");
+        goto failure;
+    }
+
+
     pm_data_accumulator_len = 0;
     pm_data_start_time = time(0);
     if(pm_data_start_time == -1) {
@@ -74,6 +84,9 @@ int pm_data_init(const config_t *config) {
     return 0;
 
 failure:
+    free(pm_data_accumulator);
+    pm_data_accumulator = 0;
+
     free(ves_template_pm_data);
     ves_template_pm_data = 0;
     return 1;
@@ -95,6 +108,8 @@ failure:
 }
 
 int pm_data_free() {
+    free(pm_data_accumulator);
+    pm_data_accumulator = 0;
     free(ves_template_pm_data);
     ves_template_pm_data = 0;
     free(pm_data_info.vendor);
@@ -115,7 +130,7 @@ void pm_data_loop() {
         return;
     }
 
-    if((timestamp / PM_DATA_FEED_LOG_PERIOD) != (pm_data_start_time / PM_DATA_FEED_LOG_PERIOD)) {
+    if((timestamp / pm_data_feed_log_period) != (pm_data_start_time / pm_data_feed_log_period)) {
         int rc;
         char *filename = 0;
         char *full_path = 0;
@@ -205,7 +220,7 @@ int pm_data_feed(const pm_data_t *pm_data) {
 
     memcpy(&pm_data_accumulator[pm_data_accumulator_len], pm_data, sizeof(pm_data_t));
     pm_data_accumulator_len++;
-    if(pm_data_accumulator_len >= PM_DATA_ACCUMULATOR_LEN) {
+    if(pm_data_accumulator_len >= pm_data_accumulator_size) {
         pm_data_accumulator_len = 0;
     }
 
@@ -251,8 +266,16 @@ static int pm_data_write(long int start_time, long int end_time, char *filename,
     sprintf(end_time_full, "%04d-%02d-%02dT%02d:%02d:%02d+00:00", ptm->tm_year + 1900, ptm->tm_mon + 1, ptm->tm_mday, ptm->tm_hour, ptm->tm_min, ptm->tm_sec);
     
     const char *suspect = "";
-    if(end_time - start_time < PM_DATA_FEED_LOG_PERIOD) {
+    if((end_time - start_time) < pm_data_feed_log_period) {
         suspect = "<suspect>true</suspect>";
+    }
+
+    char log_period[16];
+    sprintf(log_period, "%d", pm_data_feed_log_period);
+    content = str_replace_inplace(content, "@log-period@", log_period);
+    if(content == 0) {
+        log_error("str_replace_inplace() failed");
+        goto failure;
     }
 
     content = str_replace_inplace(content, "@suspect@", suspect);
