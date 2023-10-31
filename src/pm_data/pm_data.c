@@ -53,11 +53,11 @@ static time_t pm_data_start_time = 0;
 static const config_t *pm_data_config = 0;
 static int pm_data_notification_id = 1;
 
-static int pm_data_write(long int start_time, long int end_time, char *filename, int meanActiveUe, int maxActiveUe);
+static int pm_data_write(long int start_time, long int end_time, char *filename, int meanActiveUe, int maxActiveUe, int loadAvg);
 
 int pm_data_init(const config_t *config) {
     pm_data_feed_log_period = config->ves.pm_data_interval;
-    pm_data_accumulator_size = pm_data_feed_log_period / pm_data_feed_period;
+    pm_data_accumulator_size = pm_data_feed_log_period / pm_data_feed_period + 1;
     pm_data_accumulator = (pm_data_t *)malloc(sizeof(pm_data_t) * pm_data_accumulator_size);
     if(pm_data_accumulator == 0) {
         log_error("malloc failed");
@@ -130,20 +130,23 @@ void pm_data_loop() {
         return;
     }
 
-    if((timestamp / pm_data_feed_log_period) != (pm_data_start_time / pm_data_feed_log_period)) {
+    if((pm_data_accumulator_len) && ((timestamp / pm_data_feed_log_period) != (pm_data_start_time / pm_data_feed_log_period))) {
         int rc;
         char *filename = 0;
         char *full_path = 0;
 
         long int meanActiveUeAccum = 0;
         int maxActiveUe = 0;
+        int loadAvgAccum = 0;
         for(int i = 0; i < pm_data_accumulator_len; i++) {
             meanActiveUeAccum += pm_data_accumulator[i].numUes;
             if(pm_data_accumulator[i].numUes > maxActiveUe) {
                 maxActiveUe = pm_data_accumulator[i].numUes;
             }
+            loadAvgAccum += pm_data_accumulator[i].load;
         }
         int meanActiveUe = meanActiveUeAccum / pm_data_accumulator_len;
+        int loadAvg = loadAvgAccum / pm_data_accumulator_len;
 
         struct tm *ptm = gmtime(&pm_data_start_time);
         if(ptm == 0) {
@@ -176,7 +179,7 @@ void pm_data_loop() {
             goto failure_loop;
         }
 
-        rc = pm_data_write(pm_data_start_time, timestamp, full_path, meanActiveUe, maxActiveUe);
+        rc = pm_data_write(pm_data_start_time, timestamp, full_path, meanActiveUe, maxActiveUe, loadAvg);
         if(rc != 0) {
             log_error("pm_data_write error");
             goto failure_loop;
@@ -230,7 +233,7 @@ failure:
     return 1;
 }
 
-static int pm_data_write(long int start_time, long int end_time, char *filename, int meanActiveUe, int maxActiveUe) {
+static int pm_data_write(long int start_time, long int end_time, char *filename, int meanActiveUe, int maxActiveUe, int loadAvg) {
     char *content = 0;
     FILE *f = 0;
 
@@ -310,9 +313,11 @@ static int pm_data_write(long int start_time, long int end_time, char *filename,
 
     char mean_active_ue_str[32];
     char max_active_ue_str[32];
+    char load_avg_str[8];
 
     sprintf(mean_active_ue_str, "%d", meanActiveUe);
     sprintf(max_active_ue_str, "%d", maxActiveUe);
+    sprintf(load_avg_str, "%d", loadAvg);
 
     content = str_replace_inplace(content, "@mean-active-ue@", mean_active_ue_str);
     if(content == 0) {
@@ -321,6 +326,12 @@ static int pm_data_write(long int start_time, long int end_time, char *filename,
     }
 
     content = str_replace_inplace(content, "@max-active-ue@", max_active_ue_str);
+    if(content == 0) {
+        log_error("str_replace_inplace() failed");
+        goto failure;
+    }
+
+    content = str_replace_inplace(content, "@load-avg@", load_avg_str);
     if(content == 0) {
         log_error("str_replace_inplace() failed");
         goto failure;

@@ -27,6 +27,7 @@ long int get_seconds_since_epoch(void);
 long int get_microseconds_since_epoch(void);
 char *get_netconf_timestamp(void);
 char *get_netconf_timestamp_with_miliseconds(int addSeconds);
+int put_human_timestamp(char *nctime);
 char *str_replace(const char *orig, const char *rep, const char *with);
 char *str_replace_inplace(char *s, const char *rep, const char *with);
 char *str_remove_whole_line_inplace(char *haystack, const char *needle);

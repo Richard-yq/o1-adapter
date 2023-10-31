@@ -76,8 +76,9 @@
 
     #define log_error(format, ...) { \
         long sec = get_microseconds_since_epoch(); int usec = (sec / 1000 % 1000); sec /= 1000000;\
+        char ctime[128]; if(put_human_timestamp(ctime) != 0) sprintf(ctime, "%ld", sec);\
         char *the_file = __FILE__;\
-        fprintf(stderr, "\033[1;31m[%lu.%03d/err][%-20s:%4d]\033[0m ", sec, usec, the_file, __LINE__); \
+        fprintf(stderr, "\033[1;31m[%s.%03d/err][%-20s:%4d]\033[0m ", ctime, usec, the_file, __LINE__); \
         fprintf(stderr, format, ##__VA_ARGS__); \
         fprintf(stderr, "\n"); \
         __log_error(sec, usec, the_file, format, ##__VA_ARGS__) \
@@ -86,8 +87,9 @@
     #define log(format, ...) { \
         if(log_level > 0) { \
             long sec = get_microseconds_since_epoch(); int usec = (sec / 1000 % 1000); sec /= 1000000;\
+            char ctime[128]; if(put_human_timestamp(ctime) != 0) sprintf(ctime, "%ld", sec);\
             char *the_file = __FILE__;\
-            fprintf(stdout, "\033[1m[%lu.%03d/log][%-20s:%4d]\033[0m ", sec, usec, the_file, __LINE__); \
+            fprintf(stdout, "\033[1m[%s.%03d/log][%-20s:%4d]\033[0m ", ctime, usec, the_file, __LINE__); \
             fprintf(stdout, format, ##__VA_ARGS__); \
             fprintf(stdout, "\n"); \
             if(log_level > 2) { \

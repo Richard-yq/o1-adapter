@@ -136,10 +136,8 @@ oai_data_t *oai_data_parse_json(const char *json) {
                 break;
 
             default:
-                log_error("invalid subcarrier spacing");
-                goto failed;
+                data->bwp[0].subCarrierSpacing = object->valueint;
         }
-        // data->bwp[0].subCarrierSpacing = object->valueint;
     }
 
     {
@@ -219,10 +217,8 @@ oai_data_t *oai_data_parse_json(const char *json) {
                 break;
 
             default:
-                log_error("invalid subcarrier spacing");
-                goto failed;
+                data->bwp[1].subCarrierSpacing = object->valueint;
         }
-        // data->bwp[1].subCarrierSpacing = object->valueint;
     }
 
     cJSON *nrcelldu = cJSON_GetObjectItem(o1, "NRCELLDU");

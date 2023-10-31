@@ -97,6 +97,28 @@ char *get_netconf_timestamp_with_miliseconds(int addSeconds) {
     return nctime;
 }
 
+int put_human_timestamp(char *nctime) {
+    time_t rawtime = time(0);
+
+    if (rawtime == -1) {
+        log_error("time() failed");
+        return 1;
+    }
+    else {
+        struct tm *ptm = gmtime(&rawtime);
+        if (ptm == 0) {
+            log_error("gmtime failed");
+            return 1;
+        }
+        else {
+            sprintf(nctime, "%04d-%02d-%02dT%02d:%02d:%02d", ptm->tm_year + 1900, ptm->tm_mon + 1,
+                    ptm->tm_mday, ptm->tm_hour, ptm->tm_min, ptm->tm_sec);
+        }
+    }
+
+    return 0;
+}
+
 char *str_replace(const char *orig, const char *rep, const char *with) {
     char *result; // the return string
     const char *ins;    // the next insert point

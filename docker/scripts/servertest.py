@@ -34,7 +34,7 @@ o1_stats_template = """{
           "bwp3gpp:isInitialBwp": true,
           "bwp3gpp:numberOfRBs": 106,
           "bwp3gpp:startRB": 0,
-          "bwp3gpp:subCarrierSpacing": 1
+          "bwp3gpp:subCarrierSpacing": 30
         }
       ],
       "ul": [
@@ -42,7 +42,7 @@ o1_stats_template = """{
           "bwp3gpp:isInitialBwp": true,
           "bwp3gpp:numberOfRBs": 106,
           "bwp3gpp:startRB": 0,
-          "bwp3gpp:subCarrierSpacing": 1
+          "bwp3gpp:subCarrierSpacing": 30
         }
       ]
     },
@@ -132,6 +132,7 @@ def execute_command(writer, command):
     writer.write("\r\n" + response + "\r\n")
 
 async def shell(reader, writer):
+    print('connection opened...')
     writer.write('softmodem_gnb> ')
     await writer.drain()
     command = ''
@@ -153,8 +154,13 @@ async def shell(reader, writer):
                 await writer.drain()
                 
                 command = ""
-
+        else:
+          break
+        
     writer.close()
+    reader.close()
+    print('connection closed...')
+    
 
 loop = asyncio.get_event_loop()
 coro = telnetlib3.create_server(port=9091, shell=shell)
