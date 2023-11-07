@@ -202,9 +202,18 @@ int oai_data_feed(const oai_data_t *data) {
         goto failure;
     }
 
+    long int ue_thp_dl = 0;
+    long int ue_thp_ul = 0;
+    for(int i = 0; i < data->additional_data.numUes; i++) {
+        ue_thp_dl += data->additional_data.ues_thp[i].dl;
+        ue_thp_ul += data->additional_data.ues_thp[i].ul;
+    }
+
     pm_data_t pm_data = {
         .numUes = data->additional_data.numUes,
         .load = data->additional_data.load,
+        .ue_thp_dl = ue_thp_dl,
+        .ue_thp_ul = ue_thp_ul,
     };
 
     rc = pm_data_feed(&pm_data);

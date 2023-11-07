@@ -28,6 +28,8 @@
 typedef struct pm_data {
     int numUes;
     int load;
+    long int ue_thp_dl;
+    long int ue_thp_ul;
 } pm_data_t;
 
 typedef struct pm_data_info {

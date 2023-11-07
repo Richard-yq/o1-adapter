@@ -19,12 +19,16 @@ xsi:schemaLocation="http://www.3gpp.org/ftp/specs/archive/32_series/32.435#measC
 			<measType p="4">DRB.MaxActiveUeUl</measType>
 			<measType p="4">DRB.MaxActiveUeUl</measType>
 			<measType p="5">RRU.PrbTotDl</measType>
+			<measType p="6">DRB.UEThpDl</measType>
+			<measType p="7">DRB.UEThpUl</measType>
 			<measValue measObjLdn="DuFunction=@du-id@,CellId=@cell-id@">
 				<r p="1">@mean-active-ue@</r>
 				<r p="2">@max-active-ue@</r>
 				<r p="3">@mean-active-ue@</r>
 				<r p="4">@max-active-ue@</r>
 				<r p="5">@load-avg@</r>
+				<r p="6">@ue-thp-dl@</r>
+				<r p="7">@ue-thp-ul@</r>
 				@suspect@
 			</measValue>
 		</measInfo>

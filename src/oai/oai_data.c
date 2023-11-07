@@ -437,11 +437,11 @@ oai_data_t *oai_data_parse_json(const char *json) {
     for(int i = 0; i < data->additional_data.numUes; i++) {
         cJSON *ue = cJSON_GetArrayItem(object, i);
         if(ue == 0) {
-            log_error("not found: bwp3gpp:numberOfRBs");
+            log_error("not found: ues[i]");
             goto failed;
         }
         if(!cJSON_IsNumber(ue)) {
-            log_error("failed type: bwp3gpp:numberOfRBs");
+            log_error("failed type: ues[i]");
             goto failed;
         }
         data->additional_data.ues[i] = ue->valueint;
@@ -457,6 +457,41 @@ oai_data_t *oai_data_parse_json(const char *json) {
         goto failed;
     }
     data->additional_data.load = object->valueint;
+
+    object = cJSON_GetObjectItem(additional, "ues-thp");
+    data->additional_data.ues_thp = (oai_ues_thp_t *)malloc(data->additional_data.numUes * sizeof(oai_ues_thp_t));
+    if(!data->additional_data.ues_thp) {
+        log_error("malloc failed: ues_thp");
+        goto failed;
+    }
+    for(int i = 0; i < data->additional_data.numUes; i++) {
+        cJSON *thpUe = cJSON_GetArrayItem(object, i);
+        if(thpUe == 0) {
+            log_error("not found: thpUe");
+            goto failed;
+        }
+
+        cJSON *objectItem = cJSON_GetObjectItem(thpUe, "rnti");
+        if(!cJSON_IsNumber(objectItem)) {
+            log_error("failed type: rnti");
+            goto failed;
+        }
+        data->additional_data.ues_thp[i].rnti = objectItem->valueint;
+
+        objectItem = cJSON_GetObjectItem(thpUe, "dl");
+        if(!cJSON_IsNumber(objectItem)) {
+            log_error("failed type: dl");
+            goto failed;
+        }
+        data->additional_data.ues_thp[i].dl = objectItem->valueint;
+
+        objectItem = cJSON_GetObjectItem(thpUe, "ul");
+        if(!cJSON_IsNumber(objectItem)) {
+            log_error("failed type: ul");
+            goto failed;
+        }
+        data->additional_data.ues_thp[i].ul = objectItem->valueint;
+    }
 
     cJSON_Delete(cjson);
     return data;
@@ -505,6 +540,12 @@ void oai_data_print(const oai_data_t *data) {
         log(" - [%d]: %d\n", i, data->additional_data.ues[i]);
     }
     log("ADDITIONAL.load: %d\n", data->additional_data.load);
+    log("ADDITIONAL.UEs-THP[%d]: \n", data->additional_data.numUes);
+    for(int i = 0; i < data->additional_data.numUes; i++) {
+        log(" - rnti[%d]: %d\n", i, data->additional_data.ues_thp[i].rnti);
+        log(" - dl[%d]: %d\n", i, data->additional_data.ues_thp[i].dl);
+        log(" - ul[%d]: %d\n", i, data->additional_data.ues_thp[i].ul);
+    }
     
     log("\n");
 }
@@ -527,6 +568,9 @@ void oai_data_free(oai_data_t *data) {
     
     free(data->additional_data.ues);
     data->additional_data.ues = 0;
+
+    free(data->additional_data.ues_thp);
+    data->additional_data.ues_thp = 0;
 
     free(data);
 }

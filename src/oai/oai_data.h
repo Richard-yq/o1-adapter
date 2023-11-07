@@ -25,12 +25,19 @@
 
 #include <stdint.h>
 
+typedef struct oai_ues_thp {
+    int rnti;
+    int dl;
+    int ul;
+} oai_ues_thp_t;
+
 typedef struct oai_additional_data {
     char *frameType;
     int bandNumber;
     int numUes;
     int *ues;
     int load;
+    oai_ues_thp_t *ues_thp;
 } oai_additional_data_t;
 
 typedef struct oai_config_data {
