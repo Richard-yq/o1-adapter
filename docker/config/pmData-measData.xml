@@ -17,7 +17,6 @@ xsi:schemaLocation="http://www.3gpp.org/ftp/specs/archive/32_series/32.435#measC
 			<measType p="2">DRB.MaxActiveUeDl</measType>
 			<measType p="3">DRB.MeanActiveUeUl</measType>
 			<measType p="4">DRB.MaxActiveUeUl</measType>
-			<measType p="4">DRB.MaxActiveUeUl</measType>
 			<measType p="5">RRU.PrbTotDl</measType>
 			<measType p="6">DRB.UEThpDl</measType>
 			<measType p="7">DRB.UEThpUl</measType>
