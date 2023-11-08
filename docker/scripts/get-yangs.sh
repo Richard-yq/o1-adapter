@@ -37,7 +37,7 @@ fi
 
 # download
 if [ ! -f "$FILE_DOWNLOADZIP" ]; then
-    wget -O "$FILE_DOWNLOADZIP" "https://forge.3gpp.org/rep/sa5/MnS/-/archive/Rel-18/MnS-Rel-18.zip?path=yang-models"
+    wget --no-check-certificate -O "$FILE_DOWNLOADZIP" "https://forge.3gpp.org/rep/sa5/MnS/-/archive/Rel-18/MnS-Rel-18.zip?path=yang-models"
 fi
 if [ ! -d "$DIR_AVAILABLE_YANGS" ]; then
     mkdir "$DIR_AVAILABLE_YANGS"

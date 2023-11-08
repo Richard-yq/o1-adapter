@@ -68,16 +68,22 @@ o1_stats_template = """{
   "O1-Operational": {
     "frame-type": "tdd",
     "band-number": 78,
-    "num-ues": 1,
+    "num-ues": 2,
     "ues": [
-      6876
+      6876,
+      28734
     ],
-    "load": 9,
+    "load": 12,
     "ues-thp": [
       {
         "rnti": 6876,
         "dl": 3279,
         "ul": 2725
+      },
+      {
+        "rnti": 28734,
+        "dl": 1279,
+        "ul": 5725
       }
     ]
   }
