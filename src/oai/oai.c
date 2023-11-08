@@ -212,8 +212,8 @@ int oai_data_feed(const oai_data_t *data) {
     pm_data_t pm_data = {
         .numUes = data->additional_data.numUes,
         .load = data->additional_data.load,
-        .ue_thp_dl = ue_thp_dl,
-        .ue_thp_ul = ue_thp_ul,
+        .ue_thp_dl_sum = ue_thp_dl,
+        .ue_thp_ul_sum = ue_thp_ul,
     };
 
     rc = pm_data_feed(&pm_data);

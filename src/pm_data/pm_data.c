@@ -159,10 +159,8 @@ void pm_data_loop() {
             }
             loadAvgAccum += pm_data_accumulator[i].load;
 
-            for(int j = 0; j < pm_data_accumulator[i].numUes; j++) {
-                ue_thp_dl_accum += pm_data_accumulator[i].ue_thp_dl;
-                ue_thp_ul_accum += pm_data_accumulator[i].ue_thp_ul;
-            }
+            ue_thp_dl_accum += pm_data_accumulator[i].ue_thp_dl_sum;
+            ue_thp_ul_accum += pm_data_accumulator[i].ue_thp_ul_sum;
         }
         int meanActiveUe = meanActiveUeAccum / pm_data_accumulator_len;
         int loadAvg = loadAvgAccum / pm_data_accumulator_len;
