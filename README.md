@@ -45,17 +45,34 @@ The OAI Telnet interface provides **access** to control and monitor the OpenAirI
     * Operating modes
 * **Debug:** Provides access to internal data for troubleshooting purposes.
 
+## Repository Top Level Directory structure
+
+Top level repository structure:
+
+oai-adapters repo-root
+ - **src**: adapter source code
+ - **docker**: image creation
+ - **dictionary**: alarm and PM XML documentation
+ - **integration**: system integration and testing (SIT)
+ - **readme-images**: images for README.md
+ - *README.md*: this readme
+ - *build.adapter.sh*: build adapter script
+ - *start-adapter.sh*: start/stop adapter
+ - *Makefile*: Execute build/integration tasks (GNU Make)
+
+See chapter development for more detailed structure.
+
 ## Architecture
 
 ### Overview
 
 The figure below depicts the OAI O1 Adapter with internal parts and external interfaces.
 
-![OAI O1 Adapter](res/AOI-O1-Adaper.png)
+![OAI O1 Adapter](readme-images/AOI-O1-Adaper.png){width=80%}
 
 For integration the O-RAN-SC SMO (ORAN Based) is used.
 
-![OAI O1 Adapter](res/AOI-O1-SMO.png){width=70%}
+![OAI O1 Adapter](readme-images/AOI-O1-SMO.png){width=70%}
 
 ### The O1 Interface in Open Radio Access Network
 
@@ -168,6 +185,14 @@ References:
   * [O-RAN SC smo/ves Documentation](https://docs.o-ran-sc.org/projects/o-ran-sc-smo-ves/en/latest/index.html)
   * [ONAP VES](https://docs.onap.org/projects/onap-dcaegen2/en/latest/sections/apis/ves.html)
   * PM File Ready [PM File Ready](https://gerrit.o-ran-sc.org/r/gitweb?p=oam.git;a=blob;f=code/client-scripts-ves-v7/json/templates/stndDefined-r16-notify-file-ready.json)
+
+### Dictionary
+
+The alarms and performance measurements are documented in XML format that definition is available in a formalized way.
+
+The format is specified by O-RAN Software community.
+
+See directory "dictionary".
 
 ## Development
 
@@ -365,9 +390,10 @@ To build the container the `build-adapter.sh` script is used. Accepted parameter
 
 The rest of the documentation assumes that the production Docker container will be used.
 
-## Integration
+## Development test
 
 ### Running the container
+
 The container can be started either from `start-adapter.sh` or using a `docker-compose.yaml` file.
 
 When manually starting the container, one should use `./start-adapter.sh --adapter`. Other options present in the `start-adapter.sh` script are for development/debugging purposes and should not be used otherwise.
@@ -531,18 +557,42 @@ Explanation for what each node is configuring:
 
 Using any NETCONF client, one should connect to adapter by simply connecting on the corresponding host/IP address and port.
 
-The server is 100% compliant to he NETCONF protocol and should be able to exchange messages with any NETCONF client.
+The server is 100% compliant to the NETCONF protocol and should be able to exchange messages with any NETCONF client.
 
-## References
+## System Integration and Testing (SIT)
 
-[1] OpenAirInterface license: https://openairinterface.org/legal/oai-license-model/
-[2] OpenAirInterface git: https://gitlab.eurecom.fr/oai/openairinterface5g
-[3] O-RAN-SC license: https://docs.o-ran-sc.org/en/latest/license.html
-[4] O-RAN-SC Architecture: https://docs.o-ran-sc.org/en/e-release/architecture/architecture.html
-[5] libyang source code and documentation: https://github.com/CESNET/libyang.git
-[6] sysrepo source code and documentation: https://github.com/sysrepo/sysrepo.git
-[7] libnetconf2 source code and documentation: https://github.com/CESNET/libnetconf2.git
-[8] netopeer2 source code and documentation: https://github.com/CESNET/netopeer2.git
-[9] curl/libcurl source code and documentation: https://github.com/curl/curl.git
-[10] cJSON source code and documentation: https://github.com/DaveGamble/cJSON.git
-[11] libtelnet source code and documentation: https://github.com/seanmiddleditch/libtelnet.git
+System and integration testing verify that the individual software components work together seamlessly as a whole system. 
+
+It can be also used as template for demo setups.
+
+Please refer to [integration/README.md](integration/README.md)
+
+## Appendix
+
+### References
+
+  * [1] OpenAirInterface license: https://openairinterface.org/legal/oai-license-model/
+  * [2] OpenAirInterface git: https://gitlab.eurecom.fr/oai/openairinterface5g
+  * [3] O-RAN-SC license: https://docs.o-ran-sc.org/en/latest/license.html
+  * [4] O-RAN-SC Architecture: https://docs.o-ran-sc.org/en/e-release/architecture/architecture.html
+  * [5] libyang source code and documentation: https://github.com/CESNET/libyang.git
+  * [6] sysrepo source code and documentation: https://github.com/sysrepo/sysrepo.git
+  * [7] libnetconf2 source code and documentation: https://github.com/CESNET/libnetconf2.git
+  * [8] netopeer2 source code and documentation: https://github.com/CESNET/netopeer2.git
+  * [9] curl/libcurl source code and documentation: https://github.com/curl/curl.git
+  * [10] cJSON source code and documentation: https://github.com/DaveGamble/cJSON.git
+  * [11] libtelnet source code and documentation: https://github.com/seanmiddleditch/libtelnet.git
+  * [12] O-RAN Alliance: https://www.o-ran.org/
+  * [13] ONAP Home: https://www.onap.org/
+  * [14] IETF RFC6241 NETCONF: https://datatracker.ietf.org/doc/html/rfc6241
+  * [15] IETF RFC6020 YANG: https://datatracker.ietf.org/doc/html/rfc6020
+  * [16] ONAP VES: https://wiki.onap.org/display/DW/VES+7.1
+  * [17] OpenAirInterface: https://openairinterface.org/
+
+### Terms
+
+  * O-RAN: Open RAN Alliance
+  * O-RAN-SC: O-RAN Software Community
+  * OAI: OpenAirInterface
+  * ONAP: Open Network Automation Platform
+  * SMO: Service Management and Orchestration

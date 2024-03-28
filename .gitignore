@@ -3,3 +3,6 @@ src/gnb-adapter
 src/log.log
 src/testcode
 src/run.sh
+
+integration/.ftp/
+integration/oam/
