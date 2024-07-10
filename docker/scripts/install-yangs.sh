@@ -42,7 +42,7 @@ declare yang_files=(
     "_3gpp-common-fm.yang"
     "_3gpp-common-trace.yang"
     "_3gpp-5gc-nrm-configurable5qiset.yang"
-    "_3gpp-5gc-ecmconnectioninfo.yang"
+    "_3gpp-5gc-nrm-ecmconnectioninfo.yang"
     "_3gpp-common-subnetwork.yang"
     "_3gpp-common-managed-element.yang"
     "_3gpp-5g-common-yang-types.yang"

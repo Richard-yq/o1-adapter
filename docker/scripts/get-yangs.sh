@@ -61,7 +61,7 @@ cp "$DIR_AVAILABLE_YANGS/"ietf-*.yang "$DIR_YANGS/"
 declare special_files=(
     "_3gpp-5g-common-yang-types.yang"
     "_3gpp-5gc-nrm-configurable5qiset.yang"
-    "_3gpp-5gc-ecmconnectioninfo.yang"
+    "_3gpp-5gc-nrm-ecmconnectioninfo.yang"
     "_3gpp-nr-nrm-bwp.yang"
     "_3gpp-nr-nrm-ep.yang"
     "_3gpp-nr-nrm-gnbcucpfunction.yang"
