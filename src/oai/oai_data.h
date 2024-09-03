@@ -25,6 +25,18 @@
 
 #include <stdint.h>
 
+
+typedef struct oai_nrsectcarr_data { 
+    char *txDirection;
+    int configuredMaxTxPower;
+    int configuredMaxTxEIRP;
+    int arfcnDL;
+    int arfcnUL;
+    int bSChannelBwDL;
+    int bSChannelBwUL;
+    char *sectorEquipmentFunctionRef;
+}oai_nrsectcarr_data_t;
+
 typedef struct oai_ues_thp {
     int rnti;
     int dl;
@@ -73,6 +85,7 @@ typedef struct oai_data {
     oai_nrcelldu_data_t nrcelldu;
     oai_device_data_t device_data;
     oai_additional_data_t additional_data;
+    oai_nrsectcarr_data_t nrsectcarr;
 } oai_data_t;
 
 oai_data_t *oai_data_parse_json(const char *json);
