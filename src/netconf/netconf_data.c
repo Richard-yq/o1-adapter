@@ -1180,7 +1180,7 @@ asprintf(&values_running[k_running], "%d", oai->nrsectcarr.bSChannelBwDL);
                 }
                 k_running++;
 
-/* ************************************************************************************************************************************************************************* */
+
 
 
         asprintf(&xpath_running[k_running], "%s/_3gpp-common-managed-element:AlarmList[id='ManagedElement=%s,AlarmList=1']", MANAGED_ELEMENT_XPATH, netconf_config->info.node_id);
