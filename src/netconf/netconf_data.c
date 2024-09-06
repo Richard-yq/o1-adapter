@@ -1008,7 +1008,7 @@ int netconf_data_update_full(const oai_data_t *oai) {
                 k_running++;
 
 /* **********************************************POPULATING NR SECTOR CARRIER CONFIGS************************************************ */
-asprintf(&xpath_running[k_running], "%s/_3gpp-nr-nrm-nrsectorcarrier:NRSectorCarrier[id='ManagedElement=%s, GNBCUCPFunction=%d']", GNBDU_FUNCTION_XPATH);
+asprintf(&xpath_running[k_running], "%s/_3gpp-nr-nrm-nrsectorcarrier:NRSectorCarrier[id='ManagedElement=%s, GNBDUFunction=%d']", GNBDU_FUNCTION_XPATH);
             if(xpath_running[k_running] == 0) {
                   log_error("asprintf failed");
                   goto failure;
