@@ -66,7 +66,7 @@ sed -i 's/length 6/length 8/g' $DIRBIN/yang/_3gpp-5g-common-yang-types.yang
 for file in "${yang_files[@]}"
 do
     echo "$DIR_YANGS/$file"
-    sysrepoctl -i "$DIR_YANGS/$file"
+    sysrepoctl -i "$DIR_YANGS/$file" -s "$DIR_YANGS"
 done
 
 sysrepoctl -c _3gpp-common-managed-function -e MeasurementsUnderManagedFunction
