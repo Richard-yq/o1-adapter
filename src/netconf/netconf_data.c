@@ -50,6 +50,9 @@ static const char *ALARMLIST_XPATH = 0;
 static const char **ALARM_XPATH = 0;
 static const char **ALARM_XPATH_OPER = 0;
 
+static const char *NRSECTORCARRIER_XPATH = 0;
+
+
 static const config_t *netconf_config = 0;
 static const alarm_t **netconf_alarms = 0;
 static sr_subscription_ctx_t *netconf_data_subscription = 0;
@@ -78,6 +81,7 @@ int netconf_data_init(const config_t *config) {
     ALARM_XPATH = 0;
     ALARM_XPATH_OPER = 0;
 
+    NRSECTORCARRIER_XPATH = 0;
     return 0;
 
 failure:
@@ -150,6 +154,9 @@ int netconf_data_free() {
     NRCELLDU_XPATH = 0;
     NPNIDENTITYLIST_XPATH = 0;
     ALARMLIST_XPATH = 0;
+    
+    NRSECTORCARRIER_XPATH = 0;
+ 
 
     netconf_data_unregister_callbacks();
 
@@ -199,6 +206,8 @@ int netconf_data_update_full(const oai_data_t *oai) {
     NRCELLDU_XPATH = 0;
     NPNIDENTITYLIST_XPATH = 0;
     ALARMLIST_XPATH = 0;
+    
+    NRSECTORCARRIER_XPATH = 0;
 
     int k_running = 0, k_operational = 0;
 
@@ -998,6 +1007,182 @@ int netconf_data_update_full(const oai_data_t *oai) {
                 }
                 k_running++;
 
+/* **********************************************POPULATING NR SECTOR CARRIER CONFIGS************************************************ */
+asprintf(&xpath_running[k_running], "%s/_3gpp-nr-nrm-nrsectorcarrier:NRSectorCarrier[id='ManagedElement=%s, GNBDUFunction=%d']", GNBDU_FUNCTION_XPATH);
+            if(xpath_running[k_running] == 0) {
+                  log_error("asprintf failed");
+                  goto failure;
+            }
+
+            NRSECTORCARRIER_XPATH = xpath_running[k_running];
+            k_running++;
+
+	    values_running[k_running] = strdup("1");
+                if(values_running[k_running] == 0) {
+                    log_error("strdup failed");
+                    goto failure;
+                }
+                asprintf(&xpath_running[k_running], "%s/attributes/priorityLabel", NRSECTORCARRIER_XPATH);
+                if(xpath_running[k_running] == 0) {
+                    log_error("asprintf failed");
+                    goto failure;
+                }
+                k_running++;
+asprintf(&values_running[k_running], "%d", oai->nrsectcarr.txDirection);
+                if(values_running[k_running] == 0) {
+                    log_error("asprintf failed");
+                goto failure;
+           }
+
+            values_running[k_running] = strdup("UL");
+            if(values_running[k_running] == 0) {
+                log_error("strdup failed");
+                goto failure;
+            }
+
+            asprintf(&xpath_running[k_running], "%s/attributes/txDirection", NRSECTORCARRIER_XPATH);
+            if(xpath_running[k_running] == 0) {
+                    log_error("asprintf failed");
+                    goto failure;
+                }
+                k_running++;
+
+
+ asprintf(&values_running[k_running], "%s", oai->nrsectcarr.configuredMaxTxPower);
+                if(values_running[k_running] == 0) {
+                    log_error("asprintf failed");
+                goto failure;
+           }
+
+            values_running[k_running] = strdup("50");
+            if(values_running[k_running] == 0) {
+                log_error("strdup failed");
+                goto failure;
+            }
+
+            asprintf(&xpath_running[k_running], "%s/attributes/configuredMaxTxPower", NRSECTORCARRIER_XPATH);
+            if(xpath_running[k_running] == 0) {
+                    log_error("asprintf failed");
+                    goto failure;
+                }
+                k_running++;
+
+ asprintf(&values_running[k_running], "%d", oai->nrsectcarr.configuredMaxTxEIRP);
+                if(values_running[k_running] == 0) {
+                    log_error("asprintf failed");
+                goto failure;
+           }
+
+            values_running[k_running] = strdup("100");
+            if(values_running[k_running] == 0) {
+                log_error("strdup failed");
+                goto failure;
+            }
+
+            asprintf(&xpath_running[k_running], "%s/attributes/configuredMaxTxEIRP", NRSECTORCARRIER_XPATH);
+            if(xpath_running[k_running] == 0) {
+                    log_error("asprintf failed");
+                    goto failure;
+                }
+                k_running++;
+
+
+
+ asprintf(&values_running[k_running], "%d", oai->nrsectcarr.arfcnDL);
+                if(values_running[k_running] == 0) {
+                    log_error("asprintf failed");
+                goto failure;
+           }
+
+            values_running[k_running] = strdup("104");
+            if(values_running[k_running] == 0) {
+                log_error("strdup failed");
+                goto failure;
+            }
+
+            asprintf(&xpath_running[k_running], "%s/attributes/arfcnDL", NRSECTORCARRIER_XPATH);
+            if(xpath_running[k_running] == 0) {
+                    log_error("asprintf failed");
+                    goto failure;
+                }
+                k_running++;
+
+ asprintf(&values_running[k_running], "%d", oai->nrsectcarr.arfcnUL);
+                if(values_running[k_running] == 0) {
+                    log_error("asprintf failed");
+                goto failure;
+           }
+
+            values_running[k_running] = strdup("104");
+            if(values_running[k_running] == 0) {
+                log_error("strdup failed");
+                goto failure;
+            }
+
+            asprintf(&xpath_running[k_running], "%s/attributes/arfcnUL", NRSECTORCARRIER_XPATH);
+            if(xpath_running[k_running] == 0) {
+                    log_error("asprintf failed");
+                    goto failure;
+                }
+                k_running++;
+		
+asprintf(&values_running[k_running], "%d", oai->nrsectcarr.bSChannelBwDL);
+                if(values_running[k_running] == 0) {
+                    log_error("asprintf failed");
+                goto failure;
+           }
+
+            values_running[k_running] = strdup("60");
+            if(values_running[k_running] == 0) {
+                log_error("strdup failed");
+                goto failure;
+            }
+
+            asprintf(&xpath_running[k_running], "%s/attributes/bSChannelBwDL", NRSECTORCARRIER_XPATH);                 if(xpath_running[k_running] == 0) {
+                    log_error("asprintf failed");
+                    goto failure;
+                }
+                k_running++;
+
+		asprintf(&values_running[k_running], "%d", oai->nrsectcarr.bSChannelBwUL);
+                if(values_running[k_running] == 0) {
+                    log_error("asprintf failed");
+                goto failure;
+           }
+
+            values_running[k_running] = strdup("60");
+            if(values_running[k_running] == 0) {
+                log_error("strdup failed");
+                goto failure;
+            }
+
+            asprintf(&xpath_running[k_running], "%s/attributes/bSChannelBwUL", NRSECTORCARRIER_XPATH);                 if(xpath_running[k_running] == 0) {
+                    log_error("asprintf failed");
+                    goto failure;
+                }
+                k_running++;
+
+		                asprintf(&values_running[k_running], "%s", oai->nrsectcarr.sectorEquipmentFunctionRef);
+                if(values_running[k_running] == 0) {
+                    log_error("asprintf failed");
+                goto failure;
+           }
+
+            values_running[k_running] = strdup("Tuf=Jy,H:u=|");
+            if(values_running[k_running] == 0) {
+                log_error("strdup failed");
+                goto failure;
+            }
+
+            asprintf(&xpath_running[k_running], "%s/attributes/sectorEquipmentFunctionRef", NRSECTORCARRIER_XPATH);                 if(xpath_running[k_running] == 0) {
+                    log_error("asprintf failed");
+                    goto failure;
+                }
+                k_running++;
+
+
+
+
         asprintf(&xpath_running[k_running], "%s/_3gpp-common-managed-element:AlarmList[id='ManagedElement=%s,AlarmList=1']", MANAGED_ELEMENT_XPATH, netconf_config->info.node_id);
         if(xpath_running[k_running] == 0) {
             log_error("asprintf failed");
@@ -1179,6 +1364,8 @@ failure:
     NPNIDENTITYLIST_XPATH = 0;
     ALARMLIST_XPATH = 0;
 
+    NRSECTORCARRIER_XPATH = 0 ;
+    
     rc = netconf_data_unregister_callbacks();
     if(rc != 0) {
         log_error("netconf_data_unregister_callbacks");
