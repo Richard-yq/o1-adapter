@@ -37,11 +37,8 @@ fi
 
 # download
 if [ ! -f "$FILE_DOWNLOADZIP" ]; then
-    # latest commit, working since 2024-01-17
-    wget --no-check-certificate -O "$FILE_DOWNLOADZIP" "https://forge.3gpp.org/rep/sa5/MnS/-/archive/Rel-18/MnS-Rel-18.zip?path=yang-models"
-
-    # latest release
-    # wget --no-check-certificate -O "$FILE_DOWNLOADZIP" "https://forge.3gpp.org/rep/sa5/MnS/-/archive/Tag_Rel17_SA96/MnS-Tag_Rel17_SA96.zip?path=yang-models"
+    # use latest working tag Tag_Rel18_SA103
+    wget --no-check-certificate -O "$FILE_DOWNLOADZIP" "https://forge.3gpp.org/rep/sa5/MnS/-/archive/Tag_Rel18_SA103/MnS-Rel-18.zip?path=yang-models"
 fi
 if [ ! -d "$DIR_AVAILABLE_YANGS" ]; then
     mkdir "$DIR_AVAILABLE_YANGS"
