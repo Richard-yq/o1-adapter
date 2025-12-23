@@ -51,9 +51,19 @@ static alarm_t alarm_load_downlink_exceeded_warning = {
     .timeout = 0,
 };
 
+static alarm_t alarm_prach_attack_detected = {
+    .alarm = "prachAttackDetected",
+    .severity = ALARM_SEVERITY_CRITICAL,
+    .type = ALARM_TYPE_SECURITY_SERVICE_OR_MECHANISM_VIOLATION,
+    .object_instance = 0,
+    .state = ALARM_STATE_CLEARED,
+    .timeout = 0,
+};
+
 static const alarm_t *alarms[] = {
     &alarm_internal_connection_loss,
     &alarm_load_downlink_exceeded_warning,
+    &alarm_prach_attack_detected,
     0
 };
 
@@ -79,6 +89,12 @@ int alarms_init(const config_t *config) {
 
     asprintf(&alarm_load_downlink_exceeded_warning.object_instance, "ManagedElement=%s,GNBDUFunction=%d,NRCellDU=0", alarms_config->info.node_id, alarms_config->info.gnb_du_id);
     if(alarm_load_downlink_exceeded_warning.object_instance == 0) {
+        log_error("asprintf failed");
+        goto failed;
+    }
+
+    asprintf(&alarm_prach_attack_detected.object_instance, "ManagedElement=%s,GNBDUFunction=%d,NRCellDU=0", alarms_config->info.node_id, alarms_config->info.gnb_du_id);
+    if(alarm_prach_attack_detected.object_instance == 0) {
         log_error("asprintf failed");
         goto failed;
     }
@@ -242,6 +258,19 @@ int alarms_data_feed(const alarms_data_t *alarms_data) {
 
 failed:
     return 1;
+}
+
+int alarms_prach_attack_trigger() {
+    if(alarm_prach_attack_detected.state == ALARM_STATE_CLEARED) {
+        alarm_prach_attack_detected.state = ALARM_STATE_RAISE;
+        alarm_prach_attack_detected.timeout = 0;  // Immediate raise
+    }
+    else if(alarm_prach_attack_detected.state == ALARM_STATE_CLEAR) {
+        // Cancel clear operation, keep alarm raised
+        alarm_prach_attack_detected.state = ALARM_STATE_RAISED;
+    }
+    
+    return 0;
 }
 
 void alarms_loop() {

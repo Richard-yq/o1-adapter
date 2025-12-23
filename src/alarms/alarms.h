@@ -81,3 +81,4 @@ const char *alarm_type_to_str(const alarm_type_t type);
 void alarms_on_telnet_connected();
 void alarms_on_telnet_disconnected();
 int alarms_data_feed(const alarms_data_t *alarms_data);
+int alarms_prach_attack_trigger();
