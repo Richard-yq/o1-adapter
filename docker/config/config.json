@@ -2,7 +2,7 @@
     "log-level": 3,
     "software-version": "abcd",
     "network": {
-        "host": "10.20.11.134",
+        "host": "192.168.70.129",
         "username": "netconf",
         "password": "netconf!",
         "netconf-port": 1830,
@@ -22,7 +22,7 @@
         "pnf-registration": true,
         "heartbeat-interval": 30,
 
-        "url": "https://10.20.35.128:8443/eventListener/v7",
+        "url": "http://192.168.8.6:30417/eventListener/v7",
         "username": "sample1",
         "password": "sample1",
 
@@ -38,8 +38,8 @@
     },
 
     "telnet": {
-        "host": "10.20.11.134",
-        "port": 9091
+        "host": "192.168.70.129",
+        "port": 9090
     },
 
     "info": {
