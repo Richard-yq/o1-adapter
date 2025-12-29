@@ -22,7 +22,7 @@
         "pnf-registration": true,
         "heartbeat-interval": 30,
 
-        "url": "http://192.168.8.6:30417/eventListener/v7",
+        "url": "http://192.168.8.69:30417/eventListener/v7",
         "username": "sample1",
         "password": "sample1",
 
