@@ -40,8 +40,8 @@
 void telnet_on_data(const char *data) {
     log("telnet has DATA: '%s'", data);
     
-    // Check for PRACH attack alert
-    if(data && strstr(data, "[PRACH ATTACK ALERT]") != NULL) {
+    // Check for PRACH attack alert and MSG3 attack alert
+    if(data && (strstr(data, "[PRACH ATTACK ALERT]") != NULL || strstr(data, "[MSG3 ATTACK ALERT]") != NULL)) {
         alarms_prach_attack_trigger();
     }
 }
