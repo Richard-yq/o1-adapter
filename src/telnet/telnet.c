@@ -694,3 +694,131 @@ failed:
 
 	return 1;
 }
+
+int telnet_change_prachconfigurationindex(int new_prachconfig) {
+	char *response = 0;
+	int rc = 0;
+	char buffer[128];
+
+	telnet_lock();
+
+	const char *tokens[] = {"softmodem_gnb> ", 0};
+	rc = telnet_write("o1 stop_modem\n", 10, tokens, &response);
+	if(rc != 0) {
+		log_error("telnet_write failed");
+		goto failed;
+	}
+
+	if(strstr(response, "FAIL")) {
+		log_error("telnet o1 stop_modem failed");
+		goto failed;
+	}
+	free(response);
+	response = 0;
+
+	sleep(1);
+
+	sprintf(buffer, "o1 prachconfig %d\n", new_prachconfig);
+	rc = telnet_write(buffer, 15, tokens, &response);
+	if(rc != 0) {
+		log_error("telnet_write failed");
+		goto failed;
+	}
+	
+	if(strstr(response, "FAIL")) {
+		log_error("telnet o1 prachconfig failed");
+		goto failed;
+	}
+	free(response);
+	response = 0;
+
+	sleep(1);
+
+	rc = telnet_write("o1 start_modem\n", 10, tokens, &response);
+	if(rc != 0) {
+		log_error("telnet_write failed");
+		goto failed;
+	}
+
+	if(strstr(response, "FAIL")) {
+		log_error("telnet o1 start_modem failed");
+		goto failed;
+	}
+	free(response);
+	response = 0;
+
+	telnet_unlock();
+	
+	return 0;
+
+failed:
+ 	telnet_unlock();
+	free(response);
+	response = 0;
+
+	return 1;
+}
+
+int telnet_apply_o1_config(const char *config_cmd) {
+	char *response = 0;
+	int rc = 0;
+	char buffer[1024];
+
+	telnet_lock();
+
+	const char *tokens[] = {"softmodem_gnb> ", 0};
+	rc = telnet_write("o1 stop_modem\n", 10, tokens, &response);
+	if(rc != 0) {
+		log_error("telnet_write failed");
+		goto failed;
+	}
+
+	if(strstr(response, "FAIL")) {
+		log_error("telnet o1 stop_modem failed");
+		goto failed;
+	}
+	free(response);
+	response = 0;
+
+	sleep(1);
+
+	sprintf(buffer, "%s\n", config_cmd);
+	rc = telnet_write(buffer, 15, tokens, &response);
+	if(rc != 0) {
+		log_error("telnet_write failed");
+		goto failed;
+	}
+	
+	if(strstr(response, "FAIL")) {
+		log_error("telnet %s failed", config_cmd);
+		goto failed;
+	}
+	free(response);
+	response = 0;
+
+	sleep(1);
+
+	rc = telnet_write("o1 start_modem\n", 10, tokens, &response);
+	if(rc != 0) {
+		log_error("telnet_write failed");
+		goto failed;
+	}
+
+	if(strstr(response, "FAIL")) {
+		log_error("telnet o1 start_modem failed");
+		goto failed;
+	}
+	free(response);
+	response = 0;
+
+	telnet_unlock();
+	
+	return 0;
+
+failed:
+ 	telnet_unlock();
+	free(response);
+	response = 0;
+
+	return 1;
+}

@@ -46,6 +46,8 @@ int telnet_local_wait_for_prompt();
 
 char *telnet_get_o1_stats();
 int telnet_change_bandwidth(int new_bandwidth);
+int telnet_change_prachconfigurationindex(int new_prachconfig);
+int telnet_apply_o1_config(const char *config_cmd);
 
 
 

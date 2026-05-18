@@ -2534,6 +2534,9 @@ static int netconf_data_edit_callback(sr_session_ctx_t *session, uint32_t sub_id
         char *invalidEditReason = 0;
         int bSChannelBwDL = -1;
         int bSChannelBwUL = -1;
+        int prachConfigurationIndex = -1;
+        int ssbFrequency = -1;
+        int arfcnDL = -1;
 
         while ((rc = sr_get_change_next(session, it, &oper, &old_value, &new_value)) == SR_ERR_OK) {
             if(oper != SR_OP_MODIFIED) {
@@ -2548,6 +2551,18 @@ static int netconf_data_edit_callback(sr_session_ctx_t *session, uint32_t sub_id
             }
             else if(strstr(new_value->xpath, "bSChannelBwUL")) {
                 bSChannelBwUL = new_value->data.uint16_val;
+            }
+            else if(strstr(new_value->xpath, "prachConfigurationIndex")) {
+                prachConfigurationIndex = new_value->data.uint16_val;
+            }
+            else if(strstr(new_value->xpath, "ssbFrequency")) {
+                ssbFrequency = new_value->data.uint32_val;
+            }
+            else if(strstr(new_value->xpath, "arfcnDL")) {
+                arfcnDL = new_value->data.uint32_val;
+            }
+            else if(strstr(new_value->xpath, "absoluteFrequencySSB") || strstr(new_value->xpath, "dl_absoluteFrequencyPointA")) {
+                // Ignore these attributes for now, do not trigger invalidEdit
             }
             else {
                 invalidEdit = 1;
@@ -2571,18 +2586,43 @@ checkInvalidEdit:
             goto failed_validation;
         }
 
+        char config_cmd[512] = "o1 config";
+        int needs_o1_config = 0;
+
         if((bSChannelBwDL != -1) || (bSChannelBwUL != -1)) {
             if(bSChannelBwDL != bSChannelBwUL) {
                 log_error("bSChannelBwDL (%d) != bSChannelBwUL (%d)", bSChannelBwDL, bSChannelBwUL);
                 goto failed_validation;
             }
             else {
-                // send command
-                int rc = telnet_change_bandwidth(bSChannelBwDL);
-                if(rc != 0) {
-                    log_error("telnet_change_bandwidth failed");
-                    goto failed_validation;
-                }
+                // bSChannelBwDL configuration format usually expects more params, but we just pass what we know.
+                // Assuming it's nrcelldu3gpp:bSChannelBwDL %d bwp3gpp:numberOfRBs %d
+                sprintf(config_cmd + strlen(config_cmd), " nrcelldu3gpp:bSChannelBwDL %d bwp3gpp:numberOfRBs %d", bSChannelBwDL, bSChannelBwDL);
+                needs_o1_config = 1;
+            }
+        }
+        
+        if (prachConfigurationIndex != -1) {
+            sprintf(config_cmd + strlen(config_cmd), " nrcelldu3gpp:prachConfigurationIndex %d", prachConfigurationIndex);
+            needs_o1_config = 1;
+        }
+
+        if (ssbFrequency != -1) {
+            sprintf(config_cmd + strlen(config_cmd), " nrcelldu3gpp:ssbFrequency %d", ssbFrequency);
+            needs_o1_config = 1;
+        }
+
+        if (arfcnDL != -1) {
+            sprintf(config_cmd + strlen(config_cmd), " nrcelldu3gpp:arfcnDL %d", arfcnDL);
+            needs_o1_config = 1;
+        }
+
+        if (needs_o1_config) {
+            log("Executing telnet configuration: %s", config_cmd);
+            int rc = telnet_apply_o1_config(config_cmd);
+            if(rc != 0) {
+                log_error("telnet_apply_o1_config failed");
+                goto failed_validation;
             }
         }
 
